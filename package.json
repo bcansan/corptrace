@@ -1,0 +1,17 @@
+{
+  "name": "corporate-osint-tool",
+  "private": true,
+  "version": "0.1.0",
+  "main": "electron/main.js",
+  "type": "module",
+  "scripts": {
+    "dev:backend": "uvicorn backend.api.main:app --reload",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:electron": "electron .",
+    "dev": "concurrently \"npm:dev:backend\" \"npm:dev:frontend\" \"npm:dev:electron\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1",
+    "electron": "^31.3.1"
+  }
+}

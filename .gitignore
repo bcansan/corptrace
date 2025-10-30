@@ -1,0 +1,25 @@
+# Node
+node_modules/
+dist/
+build/
+*.log
+*.cache
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# SQLite
+*.sqlite
+*.db
+*.sqlite3
+
+# Electron
+out/
+release/
