@@ -1,7 +1,15 @@
+import sys
+from pathlib import Path
+
+# Ensure backend/ directory is on sys.path
+BACKEND_DIR = Path(__file__).resolve().parents[2]
+if str(BACKEND_DIR) not in sys.path:
+	sys.path.insert(0, str(BACKEND_DIR))
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from backend.transforms.registry import transform_registry
-from backend.core.entity import Entity
+from transforms.registry import transform_registry
+from core.entity import Entity
 
 router = APIRouter()
 
