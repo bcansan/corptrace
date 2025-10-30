@@ -1,8 +1,8 @@
 import socket
 import dns.resolver
 from typing import List
-from backend.core.transform import Transform
-from backend.core.entity import Entity
+from core.transform import Transform
+from core.entity import Entity
 
 
 class DomainToIPs(Transform):

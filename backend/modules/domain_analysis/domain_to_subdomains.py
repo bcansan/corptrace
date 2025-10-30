@@ -1,5 +1,5 @@
-from backend.core.transform import Transform
-from backend.core.entity import Entity
+from core.transform import Transform
+from core.entity import Entity
 import aiohttp
 import dns.resolver
 from typing import List

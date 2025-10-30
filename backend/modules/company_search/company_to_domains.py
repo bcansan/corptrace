@@ -1,5 +1,5 @@
-from backend.core.transform import Transform
-from backend.core.entity import Entity
+from core.transform import Transform
+from core.entity import Entity
 import aiohttp
 from bs4 import BeautifulSoup
 from typing import List
