@@ -1,33 +1,62 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import List, Dict, Any
+from backend.transforms.registry import transform_registry
+from backend.core.entity import Entity
 
-router = APIRouter(prefix="/api/transforms", tags=["transforms"])
-
-
-AVAILABLE: List[Dict[str, str]] = [
-    {"name": "Company→Domains", "input_type": "Company", "output_type": "Domain"},
-    {"name": "Domain→Subdomains", "input_type": "Domain", "output_type": "Domain"},
-    {"name": "Domain→IPs", "input_type": "Domain", "output_type": "IPAddress"},
-    {"name": "Company→LinkedIn", "input_type": "Company", "output_type": "SocialMediaProfile"},
-    {"name": "Domain→Technologies", "input_type": "Domain", "output_type": "Technology"},
-]
+router = APIRouter()
 
 
-@router.get("/available")
-def list_transforms() -> List[Dict[str, str]]:
-    return AVAILABLE
+class TransformRequest(BaseModel):
+	entity: dict
+	transform_name: str
 
 
-class ExecuteIn(BaseModel):
-    transform_name: str
-    entity: Dict[str, Any]
+@router.get("/transforms")
+async def list_transforms():
+	"""
+	Lista todas las transformaciones disponibles
+	"""
+	return {"transforms": transform_registry.list_all()}
 
 
-@router.post("/execute")
-def execute_transform(payload: ExecuteIn) -> Dict[str, Any]:
-    # Stub: return empty results for now
-    names = [t["name"] for t in AVAILABLE]
-    if payload.transform_name not in names:
-        raise HTTPException(status_code=400, detail="Unknown transform")
-    return {"results": []}
+@router.get("/transforms/entity/{entity_type}")
+async def get_transforms_for_entity(entity_type: str):
+	"""
+	Obtiene transformaciones disponibles para un tipo de entidad
+	"""
+	transforms = transform_registry.get_transforms_for_entity(entity_type)
+	return {
+		"entity_type": entity_type,
+		"available_transforms": [
+			{
+				'name': t.name,
+				'output_types': t.output_types,
+				'description': t.description
+			}
+			for t in transforms
+		]
+	}
+
+
+@router.post("/transforms/execute")
+async def execute_transform(request: TransformRequest):
+	"""
+	Ejecuta una transformación sobre una entidad
+	"""
+	entity = Entity(
+		entity_type=request.entity['type'],
+		properties=request.entity['properties']
+	)
+	transform = transform_registry.get_transform(request.transform_name)
+	if not transform:
+		raise HTTPException(status_code=404, detail="Transform not found")
+	try:
+		results = await transform.execute(entity)
+		return {
+			"input_entity": request.entity,
+			"transform": request.transform_name,
+			"results": [r.to_dict() for r in results],
+			"count": len(results)
+		}
+	except Exception as e:
+		raise HTTPException(status_code=500, detail=str(e))
